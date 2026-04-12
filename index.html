@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fernando's Productivity OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --sand: #f5f0e8;
+            --sand-dark: #e8e0d0;
+            --ink: #1a1a1a;
+            --ink-soft: #4a4a4a;
+            --ink-muted: #8a8a8a;
+            --accent-green: #2d6a4f;
+            --accent-green-light: #d8f3dc;
+            --accent-red: #c1121f;
+            --accent-red-light: #fde8e8;
+            --accent-orange: #e76f00;
+            --accent-orange-light: #fff3e0;
+            --accent-blue: #1d3557;
+            --accent-blue-light: #e0ecf4;
+            --accent-purple: #6b2fa0;
+            --accent-purple-light: #f3e8ff;
+            --accent-teal: #0b525b;
+            --accent-teal-light: #e0f4f4;
+            --layer-bio: #2d6a4f;
+            --layer-direction: #c1121f;
+            --layer-selection: #e76f00;
+            --layer-process: #0b7a3e;
+            --layer-execute: #4361ee;
+            --layer-habit: #6b2fa0;
+            --layer-leverage: #1d3557;
+            --radius: 16px;
+            --radius-sm: 8px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: var(--sand);
+            color: var(--ink);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grain overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Header */
+        .hero {
+            padding: 80px 60px 60px;
+            max-width: 1400px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero::before {
+            content: 'OS';
+            position: absolute;
+            top: 40px;
+            right: 60px;
+            font-family: 'Fraunces', serif;
+            font-size: 180px;
+            font-weight: 900;
+            color: var(--ink);
+            opacity: 0.04;
+            line-height: 1;
+        }
+
+        .hero-label {
+            font-size: 11px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--ink-muted);
+            margin-bottom: 16px;
+            font-weight: 500;
+        }
+
+        .hero h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(42px, 5vw, 64px);
+            font-weight: 900;
+            line-height: 1.05;
+            margin-bottom: 20px;
+            letter-spacing: -1.5px;
+        }
+
+        .hero h1 em {
+            font-style: italic;
+            font-weight: 300;
+            color: var(--accent-green);
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 32px;
+            font-size: 13px;
+            color: var(--ink-muted);
+            margin-top: 24px;
+            flex-wrap: wrap;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-meta .num {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
+        }
+
+        .divider {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 60px;
+        }
+
+        .divider hr {
+            border: none;
+            height: 1px;
+            background: var(--ink);
+            opacity: 0.12;
+        }
+
+        /* Main content */
+        .content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 60px 80px;
+        }
+
+        /* Section headers */
+        .section-header {
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            margin: 64px 0 32px;
+        }
+
+        .section-num {
+            font-family: 'Fraunces', serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink-muted);
+            min-width: 28px;
+        }
+
+        .section-header h2 {
+            font-family: 'Fraunces', serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .section-desc {
+            color: var(--ink-soft);
+            font-size: 14px;
+            margin-bottom: 32px;
+            max-width: 640px;
+            line-height: 1.6;
+            margin-left: 44px;
+        }
+
+        /* 7-Layer Stack */
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            margin-left: 44px;
+        }
+
+        .layer {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            border-radius: var(--radius-sm);
+            overflow: hidden;
+            transition: transform 0.2s ease;
+        }
+
+        .layer:hover {
+            transform: translateX(4px);
+        }
+
+        .layer-label {
+            padding: 20px 24px;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .layer-label .layer-name {
+            font-family: 'Fraunces', serif;
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .layer-label .layer-role {
+            font-size: 11px;
+            opacity: 0.8;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .layer-content {
+            padding: 20px 28px;
+            background: #fff;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            flex-wrap: wrap;
+        }
+
+        .layer-thinker {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink-soft);
+            min-width: 120px;
+        }
+
+        .layer-frameworks {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            flex: 1;
+        }
+
+        .framework-tag {
+            font-size: 12px;
+            padding: 4px 12px;
+            border-radius: 100px;
+            font-weight: 500;
+        }
+
+        .layer:nth-child(1) .layer-label { background: var(--layer-leverage); }
+        .layer:nth-child(1) .framework-tag { background: var(--accent-blue-light); color: var(--layer-leverage); }
+        .layer:nth-child(2) .layer-label { background: var(--layer-habit); }
+        .layer:nth-child(2) .framework-tag { background: var(--accent-purple-light); color: var(--layer-habit); }
+        .layer:nth-child(3) .layer-label { background: var(--layer-execute); }
+        .layer:nth-child(3) .framework-tag { background: #e0e7ff; color: var(--layer-execute); }
+        .layer:nth-child(4) .layer-label { background: var(--layer-process); }
+        .layer:nth-child(4) .framework-tag { background: var(--accent-green-light); color: var(--layer-process); }
+        .layer:nth-child(5) .layer-label { background: var(--layer-selection); }
+        .layer:nth-child(5) .framework-tag { background: var(--accent-orange-light); color: var(--layer-selection); }
+        .layer:nth-child(6) .layer-label { background: var(--layer-direction); }
+        .layer:nth-child(6) .framework-tag { background: var(--accent-red-light); color: var(--layer-direction); }
+        .layer:nth-child(7) .layer-label { background: var(--layer-bio); }
+        .layer:nth-child(7) .framework-tag { background: var(--accent-green-light); color: var(--layer-bio); }
+
+        /* Daily Flow */
+        .flow-container {
+            margin-left: 44px;
+            display: flex;
+            gap: 0;
+            overflow-x: auto;
+            padding-bottom: 16px;
+        }
+
+        .flow-phase {
+            min-width: 200px;
+            flex: 1;
+            position: relative;
+        }
+
+        .flow-phase::after {
+            content: '';
+            position: absolute;
+            top: 28px;
+            right: 0;
+            width: 0;
+            height: 0;
+            border-top: 8px solid transparent;
+            border-bottom: 8px solid transparent;
+            border-left: 10px solid var(--sand-dark);
+        }
+
+        .flow-phase:last-child::after { display: none; }
+
+        .flow-phase-header {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+
+        .flow-phase-body {
+            background: #fff;
+            padding: 20px;
+            border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+            min-height: 180px;
+            border: 1px solid rgba(0,0,0,0.06);
+            border-top: none;
+        }
+
+        .flow-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 14px;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--ink-soft);
+        }
+
+        .flow-step:last-child { margin-bottom: 0; }
+
+        .flow-bullet {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 6px;
+        }
+
+        .flow-step strong {
+            color: var(--ink);
+            font-weight: 600;
+        }
+
+        .phase-morning .flow-phase-header { background: var(--layer-bio); }
+        .phase-morning .flow-bullet { background: var(--layer-bio); }
+        .phase-focus .flow-phase-header { background: var(--layer-execute); }
+        .phase-focus .flow-bullet { background: var(--layer-execute); }
+        .phase-collab .flow-phase-header { background: var(--layer-selection); }
+        .phase-collab .flow-bullet { background: var(--layer-selection); }
+        .phase-process .flow-phase-header { background: var(--layer-process); }
+        .phase-process .flow-bullet { background: var(--layer-process); }
+        .phase-shutdown .flow-phase-header { background: var(--ink); }
+        .phase-shutdown .flow-bullet { background: var(--ink); }
+
+        /* Tier cards */
+        .tiers {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-left: 44px;
+        }
+
+        .tier-card {
+            background: #fff;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .tier-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px rgba(0,0,0,0.06);
+        }
+
+        .tier-header {
+            padding: 24px 24px 16px;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+        }
+
+        .tier-badge {
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            padding: 4px 10px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+
+        .tier-card:nth-child(1) .tier-badge { background: var(--accent-green-light); color: var(--accent-green); }
+        .tier-card:nth-child(2) .tier-badge { background: var(--accent-blue-light); color: var(--layer-leverage); }
+        .tier-card:nth-child(3) .tier-badge { background: var(--accent-purple-light); color: var(--layer-habit); }
+
+        .tier-header h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .tier-header .tier-when {
+            font-size: 12px;
+            color: var(--ink-muted);
+        }
+
+        .tier-body {
+            padding: 16px 24px 24px;
+        }
+
+        .tier-item {
+            display: flex;
+            gap: 12px;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.04);
+            align-items: flex-start;
+        }
+
+        .tier-item:last-child { border-bottom: none; }
+
+        .tier-item-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            flex-shrink: 0;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .tier-item-text {
+            flex: 1;
+        }
+
+        .tier-item-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .tier-item-desc {
+            font-size: 12px;
+            color: var(--ink-muted);
+            line-height: 1.4;
+        }
+
+        .tier-item-source {
+            font-size: 11px;
+            color: var(--ink-muted);
+            font-style: italic;
+        }
+
+        /* Pressure decision */
+        .pressure-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-left: 44px;
+        }
+
+        .pressure-card {
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 28px;
+            border: 1px solid rgba(0,0,0,0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .pressure-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+        }
+
+        .pressure-card:nth-child(1)::before { background: var(--accent-red); }
+        .pressure-card:nth-child(2)::before { background: var(--accent-orange); }
+        .pressure-card:nth-child(3)::before { background: var(--layer-bio); }
+        .pressure-card:nth-child(4)::before { background: var(--layer-execute); }
+
+        .pressure-trigger {
+            font-family: 'Fraunces', serif;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-style: italic;
+        }
+
+        .pressure-action {
+            font-size: 14px;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+
+        .pressure-action strong {
+            color: var(--ink);
+        }
+
+        /* Monday start */
+        .monday {
+            margin-left: 44px;
+            background: var(--ink);
+            color: #fff;
+            border-radius: var(--radius);
+            padding: 48px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .monday::before {
+            content: 'START';
+            position: absolute;
+            bottom: -20px;
+            right: 40px;
+            font-family: 'Fraunces', serif;
+            font-size: 120px;
+            font-weight: 900;
+            opacity: 0.06;
+            line-height: 1;
+        }
+
+        .monday h3 {
+            font-family: 'Fraunces', serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .monday .monday-sub {
+            font-size: 13px;
+            opacity: 0.5;
+            margin-bottom: 32px;
+        }
+
+        .monday-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        .monday-item {
+            display: flex;
+            gap: 16px;
+            align-items: flex-start;
+        }
+
+        .monday-num {
+            font-family: 'Fraunces', serif;
+            font-size: 32px;
+            font-weight: 900;
+            opacity: 0.2;
+            line-height: 1;
+            min-width: 32px;
+        }
+
+        .monday-item-text {
+            flex: 1;
+        }
+
+        .monday-item-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .monday-item-how {
+            font-size: 12px;
+            opacity: 0.6;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .footer {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 60px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .footer-left {
+            font-size: 12px;
+            color: var(--ink-muted);
+        }
+
+        .footer-right {
+            font-size: 11px;
+            color: var(--ink-muted);
+            opacity: 0.5;
+        }
+
+        /* Responsive */
+        @media (max-width: 900px) {
+            .hero, .content, .footer { padding-left: 24px; padding-right: 24px; }
+            .divider { padding: 0 24px; }
+            .layer { grid-template-columns: 1fr; }
+            .tiers { grid-template-columns: 1fr; }
+            .pressure-grid { grid-template-columns: 1fr; }
+            .layer-stack, .flow-container, .tiers, .pressure-grid, .monday { margin-left: 0; }
+            .section-desc { margin-left: 0; }
+            .monday { padding: 32px 24px; }
+        }
+
+        /* Print */
+        @media print {
+            body::after { display: none; }
+            .hero { padding: 20px 0; }
+            .hero::before { display: none; }
+            .content { padding: 0; }
+            .layer:hover, .tier-card:hover { transform: none; box-shadow: none; }
+            .monday::before { display: none; }
+        }
+
+        /* Animations */
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .layer, .tier-card, .pressure-card, .flow-phase {
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .layer:nth-child(1) { animation-delay: 0.05s; }
+        .layer:nth-child(2) { animation-delay: 0.1s; }
+        .layer:nth-child(3) { animation-delay: 0.15s; }
+        .layer:nth-child(4) { animation-delay: 0.2s; }
+        .layer:nth-child(5) { animation-delay: 0.25s; }
+        .layer:nth-child(6) { animation-delay: 0.3s; }
+        .layer:nth-child(7) { animation-delay: 0.35s; }
+
+        .tier-card:nth-child(1) { animation-delay: 0.1s; }
+        .tier-card:nth-child(2) { animation-delay: 0.2s; }
+        .tier-card:nth-child(3) { animation-delay: 0.3s; }
+
+        .flow-phase:nth-child(1) { animation-delay: 0.05s; }
+        .flow-phase:nth-child(2) { animation-delay: 0.15s; }
+        .flow-phase:nth-child(3) { animation-delay: 0.25s; }
+        .flow-phase:nth-child(4) { animation-delay: 0.35s; }
+        .flow-phase:nth-child(5) { animation-delay: 0.45s; }
+    </style>
+</head>
+<body>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-label">Fernando's Personal System</div>
+        <h1>Productivity<br/><em>Operating System</em></h1>
+        <div class="hero-meta">
+            <span><span class="num">7</span> sources researched</span>
+            <span><span class="num">84</span> frameworks analyzed</span>
+            <span><span class="num">18</span> selected for your system</span>
+            <span><span class="num">3</span> implementation tiers</span>
+        </div>
+    </div>
+
+    <div class="divider"><hr/></div>
+
+    <div class="content">
+
+        <!-- Section 1: 7-Layer Model -->
+        <div class="section-header">
+            <span class="section-num">01</span>
+            <h2>The Seven-Layer Model</h2>
+        </div>
+        <p class="section-desc">Each layer solves a different problem. They stack from biological foundation to strategic leverage. Behavior change wraps everything as a meta-capability that makes all other layers stick.</p>
+
+        <div class="layer-stack">
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Leverage</span>
+                    <span class="layer-role">Scale</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">Drucker, Wiseman, Zhuo</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">Leverage Audit</span>
+                        <span class="framework-tag">Multiplier Disciplines</span>
+                        <span class="framework-tag">Problem Selection</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Behavior Change</span>
+                    <span class="layer-role">Stick</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">James Clear</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">Four Laws</span>
+                        <span class="framework-tag">Habit Stacking</span>
+                        <span class="framework-tag">Identity-Based Habits</span>
+                        <span class="framework-tag">Environment Design</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Execution</span>
+                    <span class="layer-role">When / Where</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">Cal Newport</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">Deep Work</span>
+                        <span class="framework-tag">Time Blocking</span>
+                        <span class="framework-tag">Shutdown Ritual</span>
+                        <span class="framework-tag">Slow Productivity</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Processing</span>
+                    <span class="layer-role">How</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">David Allen</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">GTD Capture</span>
+                        <span class="framework-tag">Clarify &amp; Organize</span>
+                        <span class="framework-tag">Weekly Review</span>
+                        <span class="framework-tag">Two-Minute Rule</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Selection</span>
+                    <span class="layer-role">What</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">Greg McKeown</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">90% Rule</span>
+                        <span class="framework-tag">Forced Trade-off</span>
+                        <span class="framework-tag">Essential Intent</span>
+                        <span class="framework-tag">Effortless Action</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Direction</span>
+                    <span class="layer-role">Why</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">Stephen Covey</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">Mission Statement</span>
+                        <span class="framework-tag">Big Rocks</span>
+                        <span class="framework-tag">Circle of Influence</span>
+                        <span class="framework-tag">Emotional Bank Account</span>
+                    </div>
+                </div>
+            </div>
+            <div class="layer">
+                <div class="layer-label">
+                    <span class="layer-name">Biology</span>
+                    <span class="layer-role">Body / Brain</span>
+                </div>
+                <div class="layer-content">
+                    <span class="layer-thinker">Andrew Huberman</span>
+                    <div class="layer-frameworks">
+                        <span class="framework-tag">Focus Protocols</span>
+                        <span class="framework-tag">Physiological Sigh</span>
+                        <span class="framework-tag">NSDR</span>
+                        <span class="framework-tag">Sleep</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 2: Daily Flow -->
+        <div class="section-header">
+            <span class="section-num">02</span>
+            <h2>Daily Flow</h2>
+        </div>
+        <p class="section-desc">Your Tier 1 daily rhythm. Five phases from wake-up to shutdown, with built-in responses for interruptions, stress, and energy crashes.</p>
+
+        <div class="flow-container">
+            <div class="flow-phase phase-morning">
+                <div class="flow-phase-header">Morning</div>
+                <div class="flow-phase-body">
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Sunlight</strong> within 30 min of waking</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Brain dump</strong> everything to your single capture list</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Identify Top 3</strong> priorities for today</div></div>
+                </div>
+            </div>
+            <div class="flow-phase phase-focus">
+                <div class="flow-phase-header">Focus Block</div>
+                <div class="flow-phase-body">
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>90 min</strong> on your #1 priority</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>No messages, no meetings</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>If interrupted: <strong>"I'll get to this at [time]"</strong></div></div>
+                </div>
+            </div>
+            <div class="flow-phase phase-collab">
+                <div class="flow-phase-header">Collaboration</div>
+                <div class="flow-phase-body">
+                    <div class="flow-step"><div class="flow-bullet"></div><div>Meetings, reviews, team work</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>New requests: <strong>"Yes. What should I deprioritize?"</strong></div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>Batch messages and replies</div></div>
+                </div>
+            </div>
+            <div class="flow-phase phase-process">
+                <div class="flow-phase-header">Process</div>
+                <div class="flow-phase-body">
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Clarify</strong> and organize inbox</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>Stress spike? <strong>Sigh x3</strong></div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>Energy crash? <strong>10-min NSDR</strong></div></div>
+                </div>
+            </div>
+            <div class="flow-phase phase-shutdown">
+                <div class="flow-phase-header">Shutdown</div>
+                <div class="flow-phase-body">
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Review</strong> open tasks</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div><strong>Write</strong> tomorrow's Top 3</div></div>
+                    <div class="flow-step"><div class="flow-bullet"></div><div>Close all apps. <strong>"Shutdown complete."</strong></div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 3: Tiers -->
+        <div class="section-header">
+            <span class="section-num">03</span>
+            <h2>Implementation Tiers</h2>
+        </div>
+        <p class="section-desc">Phase it in. Don't try everything at once. Each tier builds on the last. Only advance when the previous tier feels automatic.</p>
+
+        <div class="tiers">
+            <div class="tier-card">
+                <div class="tier-header">
+                    <span class="tier-badge">Tier 1</span>
+                    <h3>Start Monday</h3>
+                    <span class="tier-when">~20 min/day overhead</span>
+                </div>
+                <div class="tier-body">
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-process)">C</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Capture Everything</div>
+                            <div class="tier-item-desc">One list. Out of your head.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-bio)">S</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Physiological Sigh</div>
+                            <div class="tier-item-desc">Instant stress reset. 30 seconds.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-selection)">T</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Forced Trade-off</div>
+                            <div class="tier-item-desc">"What should I deprioritize?"</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-execute)">R</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Shutdown Ritual</div>
+                            <div class="tier-item-desc">Review, plan, close. Done means done.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-bio)">Z</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Sleep Consistency</div>
+                            <div class="tier-item-desc">Same wake time. No screens 1h before.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-direction)">Q</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Friday Retrospective</div>
+                            <div class="tier-item-desc">Eisenhower classify your week.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-habit)">H</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Habit Stacking</div>
+                            <div class="tier-item-desc">Attach new to existing routines.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <span class="tier-badge">Tier 2</span>
+                    <h3>After 30 Days</h3>
+                    <span class="tier-when">When Tier 1 feels automatic</span>
+                </div>
+                <div class="tier-body">
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-process)">W</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Weekly Review</div>
+                            <div class="tier-item-desc">Full GTD processing cycle.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-execute)">F</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">90-Min Focus Blocks</div>
+                            <div class="tier-item-desc">Aligned with ultradian cycles.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-bio)">N</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">NSDR</div>
+                            <div class="tier-item-desc">10-min non-sleep deep rest.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">D</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Contribution Focus</div>
+                            <div class="tier-item-desc">"What can I contribute?" not "What do I do?"</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-habit)">I</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Identity-Based Framing</div>
+                            <div class="tier-item-desc">Become the person, not just do the thing.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-direction)">E</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Emotional Bank Account</div>
+                            <div class="tier-item-desc">Trust deposits enable boundaries.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tier-card">
+                <div class="tier-header">
+                    <span class="tier-badge">Tier 3</span>
+                    <h3>After 90 Days</h3>
+                    <span class="tier-when">The leadership layer</span>
+                </div>
+                <div class="tier-body">
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">L</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Leverage Audit</div>
+                            <div class="tier-item-desc">Which activities multiply output?</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">M</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Stakeholder Currency Mapping</div>
+                            <div class="tier-item-desc">What do people value? Trade accordingly.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">P</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Problem Selection</div>
+                            <div class="tier-item-desc">Right problems > right solutions.</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">X</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Multiplier Self-Audit</div>
+                            <div class="tier-item-desc">Am I amplifying or diminishing my team?</div>
+                        </div>
+                    </div>
+                    <div class="tier-item">
+                        <div class="tier-item-icon" style="background:var(--layer-leverage)">R</div>
+                        <div class="tier-item-text">
+                            <div class="tier-item-name">Residual Results</div>
+                            <div class="tier-item-desc">Invest in work that keeps producing.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 4: Under Pressure -->
+        <div class="section-header">
+            <span class="section-num">04</span>
+            <h2>Under Pressure</h2>
+        </div>
+        <p class="section-desc">When the team says "everything is urgent" and your stress spikes. Four scenarios, four responses.</p>
+
+        <div class="pressure-grid">
+            <div class="pressure-card">
+                <div class="pressure-trigger">"Everything is urgent"</div>
+                <div class="pressure-action">Ask: <strong>"Which of these matters most by Friday?"</strong> Force a ranking. If they can't rank it, it's not actually urgent.</div>
+            </div>
+            <div class="pressure-card">
+                <div class="pressure-trigger">"Can you do this too?"</div>
+                <div class="pressure-action"><strong>"Yes, I can do that. What should I deprioritize?"</strong> Every yes is a no to something else. Make the trade-off visible.</div>
+            </div>
+            <div class="pressure-card">
+                <div class="pressure-trigger">"I can't think straight"</div>
+                <div class="pressure-action"><strong>Physiological sigh x3.</strong> Then brain-dump everything to your list. Just get it out of your head. Pick ONE thing. Do that.</div>
+            </div>
+            <div class="pressure-card">
+                <div class="pressure-trigger">"I'm running on empty"</div>
+                <div class="pressure-action"><strong>10-min NSDR.</strong> Close eyes, body scan, do nothing. Not a luxury — a reset. You'll get more done in the next hour than grinding through fog.</div>
+            </div>
+        </div>
+
+        <!-- Section 5: Start Monday -->
+        <div class="section-header">
+            <span class="section-num">05</span>
+            <h2>Start Monday</h2>
+        </div>
+        <p class="section-desc">Five actions. No organizational buy-in needed. No apps to install. Just start.</p>
+
+        <div class="monday">
+            <h3>Your first five moves</h3>
+            <div class="monday-sub">No setup required. Do these on Monday and see what changes.</div>
+            <div class="monday-items">
+                <div class="monday-item">
+                    <div class="monday-num">1</div>
+                    <div class="monday-item-text">
+                        <div class="monday-item-title">Capture everything</div>
+                        <div class="monday-item-how">One list. Paper, phone, whatever. Every task, idea, request goes there. Not your head.</div>
+                    </div>
+                </div>
+                <div class="monday-item">
+                    <div class="monday-num">2</div>
+                    <div class="monday-item-text">
+                        <div class="monday-item-title">Physiological sigh</div>
+                        <div class="monday-item-how">When stress hits: double inhale through nose, long exhale through mouth. 30 seconds.</div>
+                    </div>
+                </div>
+                <div class="monday-item">
+                    <div class="monday-num">3</div>
+                    <div class="monday-item-text">
+                        <div class="monday-item-title">Forced trade-off</div>
+                        <div class="monday-item-how">Use it once. Just once. "Yes, I can do that — what should I deprioritize?"</div>
+                    </div>
+                </div>
+                <div class="monday-item">
+                    <div class="monday-num">4</div>
+                    <div class="monday-item-text">
+                        <div class="monday-item-title">Shutdown ritual</div>
+                        <div class="monday-item-how">5 min before closing laptop: review tasks, write tomorrow's top 3, close everything.</div>
+                    </div>
+                </div>
+                <div class="monday-item">
+                    <div class="monday-num">5</div>
+                    <div class="monday-item-text">
+                        <div class="monday-item-title">Friday retrospective</div>
+                        <div class="monday-item-how">15 min on Friday: where did your time actually go this week? Classify by quadrant.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="divider"><hr/></div>
+
+    <div class="footer">
+        <div class="footer-left">
+            Built from Newport, Covey, McKeown, Allen, Clear, Huberman + Leadership Leverage research
+        </div>
+        <div class="footer-right">
+            Fernando's Productivity OS v1.0 &mdash; April 2026
+        </div>
+    </div>
+
+</body>
+</html>
